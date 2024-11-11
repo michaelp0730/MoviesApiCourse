@@ -15,32 +15,40 @@ public class DbInitializer
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync();
 
-        // Create table if it doesn't exist
-        await connection.ExecuteAsync("""
-                                          create table if not exists movies (
-                                              id CHAR(36) primary key,
-                                              slug VARCHAR(255) not null,
-                                              title VARCHAR(255) not null,
-                                              yearofrelease INTEGER not null
-                                          );
-                                      """);
+        // Create movies table if it doesn't exist
+        await connection.ExecuteAsync(
+            """
+                create table if not exists movies (
+                    id CHAR(36) primary key,
+                    slug VARCHAR(255) not null,
+                    title VARCHAR(255) not null,
+                    yearofrelease INTEGER not null
+                );
+            """);
 
         // Check if the index exists, and create it if it does not
-        var indexExists = await connection.ExecuteScalarAsync<int>("""
-                                                                       SELECT COUNT(*)
-                                                                       FROM information_schema.statistics 
-                                                                       WHERE table_schema = DATABASE()
-                                                                         AND table_name = 'movies'
-                                                                         AND index_name = 'movies_slug_idx';
-                                                                   """);
+        var indexExists = await connection.ExecuteScalarAsync<int>(
+            """
+                SELECT COUNT(*) FROM information_schema.statistics 
+                WHERE table_schema = DATABASE() AND table_name = 'movies' AND index_name = 'movies_slug_idx';
+            """);
 
         if (indexExists == 0)
         {
-            await connection.ExecuteAsync("""
-                                              create unique index movies_slug_idx
-                                              on movies (slug);
-                                          """);
+            await connection.ExecuteAsync(
+                """
+                    create unique index movies_slug_id on movies (slug);
+                """);
         }
+
+        // Create generes table if it doesn't exist
+        await connection.ExecuteAsync(
+            """
+                create table if not exists genres (
+                    movieId CHAR(36) references movies (Id),
+                    name VARCHAR(255) not null
+                );
+            """);
     }
 
 }
