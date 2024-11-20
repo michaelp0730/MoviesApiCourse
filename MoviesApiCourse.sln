@@ -6,6 +6,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Application", "Movie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Movies.Contracts", "Movies.Contracts\Movies.Contracts.csproj", "{92561A85-BBBB-4B55-B3E6-C8F4C8AA270B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Helpers", "Helpers", "{D5D15D20-1B7B-4D34-A636-78A84E2E1501}"
+	ProjectSection(SolutionItems) = preProject
+		Helpers\movies.json = Helpers\movies.json
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Api", "Helpers\Identity.Api\Identity.Api.csproj", "{B86FB564-1A15-4D14-BF47-DE8F5FA58246}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +31,12 @@ Global
 		{92561A85-BBBB-4B55-B3E6-C8F4C8AA270B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92561A85-BBBB-4B55-B3E6-C8F4C8AA270B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92561A85-BBBB-4B55-B3E6-C8F4C8AA270B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B86FB564-1A15-4D14-BF47-DE8F5FA58246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B86FB564-1A15-4D14-BF47-DE8F5FA58246}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B86FB564-1A15-4D14-BF47-DE8F5FA58246}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B86FB564-1A15-4D14-BF47-DE8F5FA58246}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B86FB564-1A15-4D14-BF47-DE8F5FA58246} = {D5D15D20-1B7B-4D34-A636-78A84E2E1501}
 	EndGlobalSection
 EndGlobal
