@@ -29,7 +29,7 @@ public class DbInitializer
         // Check if the index exists, and create it if it does not
         var indexExists = await connection.ExecuteScalarAsync<int>(
             """
-                SELECT COUNT(*) FROM information_schema.statistics 
+                SELECT COUNT(*) FROM information_schema.statistics
                 WHERE table_schema = DATABASE() AND table_name = 'movies' AND index_name = 'movies_slug_idx';
             """);
 
@@ -47,6 +47,17 @@ public class DbInitializer
                 create table if not exists genres (
                     movieId CHAR(36) references movies (Id),
                     name VARCHAR(255) not null
+                );
+            """);
+
+        // Create ratings table if it doesn't exist
+        await connection.ExecuteAsync(
+            """
+                create table if not exists ratings (
+                    userid CHAR(36),
+                    movieid CHAR(36) references movies (id),
+                    rating integer not null,
+                    primary key (userid, movieid)
                 );
             """);
     }
