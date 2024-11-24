@@ -59,7 +59,7 @@ public class MovieRepository : IMovieRepository
                 select m.*, round(avg(r.rating), 1) as rating, myr.rating as userrating
                 from movies m
                 left join ratings r on m.id = r.movieid
-                left join rating myr on m.id = myr.movieid
+                left join ratings myr on m.id = myr.movieid
                 where id = @Id
                 group by id, userrating
             """, new { id, userId }, cancellationToken: cancellationToken
@@ -86,7 +86,7 @@ public class MovieRepository : IMovieRepository
                 select m.*, round(avg(r.rating), 1) as rating, myr.rating as userrating
                 from movies m
                 left join ratings r on m.id = r.movieid
-                left join rating myr on m.id = myr.movieid
+                left join ratings myr on m.id = myr.movieid
                 where slug = @Slug
                 group by id, userrating
             """, new { slug, userId }, cancellationToken: cancellationToken
