@@ -108,25 +108,39 @@ public class MovieRepository : IMovieRepository
     public async Task<IEnumerable<Movie>> GetAllAsync(GetAllMoviesOptions options, CancellationToken cancellationToken = default)
     {
         using var connection = await _dbConnectionFactory.CreateConnectionAsync();
+
+        // Dynamically build the ORDER BY clause
+        var orderClause = string.Empty;
+        if (!string.IsNullOrEmpty(options.SortField))
+        {
+            orderClause = $@"
+            ORDER BY m.{options.SortField} {(options.SortOrder == SortOrder.Ascending ? "ASC" : "DESC")}";
+        }
+
+        // Build the full query string
+        var query = $@"
+        SELECT m.*,
+            GROUP_CONCAT(g.name SEPARATOR ',') AS genres,
+            ROUND(AVG(r.rating), 1) AS rating,
+            myr.rating AS userrating
+        FROM movies m
+        LEFT JOIN genres g ON m.id = g.movieid
+        LEFT JOIN ratings r ON m.id = r.movieid
+        LEFT JOIN ratings myr ON m.id = myr.movieid AND myr.userid = @userId
+        WHERE (@title IS NULL OR m.title LIKE CONCAT('%', @title, '%'))
+        AND (@yearofrelease IS NULL OR m.yearofrelease = @yearofrelease)
+        GROUP BY m.id, userrating
+        {orderClause}"; // Append the ORDER BY clause
+
         var result = await connection.QueryAsync(new CommandDefinition(
-            """
-            SELECT m.*,
-                GROUP_CONCAT(g.name SEPARATOR ',') AS genres,
-                ROUND(AVG(r.rating), 1) AS rating,
-                myr.rating AS userrating
-            FROM movies m
-            LEFT JOIN genres g ON m.id = g.movieid
-            LEFT JOIN ratings r ON m.id = r.movieid
-            LEFT JOIN ratings myr ON m.id = myr.movieid AND myr.userid = @userId
-            WHERE (@title IS NULL OR m.title LIKE CONCAT('%', @title, '%'))
-            AND (@yearofrelease IS NULL OR m.yearofrelease = @yearofrelease)
-            GROUP BY m.id, userrating
-            """, new
+            query, // Pass the dynamically built query
+            new
             {
                 userId = options.UserId,
                 title = options.Title,
                 yearofrelease = options.YearOfRelease
-            }, cancellationToken: cancellationToken
+            },
+            cancellationToken: cancellationToken
         ));
 
         return result.Select(x => new Movie
@@ -136,7 +150,7 @@ public class MovieRepository : IMovieRepository
             YearOfRelease = x.yearofrelease,
             Rating = (float?)x.rating,
             UserRating = (int?)x.userrating,
-            Genres = ((string)x.genres)?.Split(',').ToList() ?? new List<string>() // Explicitly cast genres to string
+            Genres = ((string)x.genres)?.Split(',').ToList() ?? new List<string>()
         });
     }
 
