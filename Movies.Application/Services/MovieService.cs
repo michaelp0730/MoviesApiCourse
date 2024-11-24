@@ -1,4 +1,3 @@
-using System.Security.Principal;
 using FluentValidation;
 using Movies.Application.Models;
 using Movies.Application.Repositories;
@@ -72,5 +71,10 @@ public class MovieService : IMovieService
     public Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return _movieRepository.DeleteAsync(id, cancellationToken);
+    }
+
+    public Task<int> GetCountAsync(string? title, int? yearOfRelease, CancellationToken cancellationToken = default)
+    {
+        return _movieRepository.GetCountAsync(title, yearOfRelease, cancellationToken);
     }
 }
