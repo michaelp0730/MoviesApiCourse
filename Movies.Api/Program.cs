@@ -44,6 +44,21 @@ builder.Services.AddAuthorization(x =>
 
 builder.Services.AddAuthorization();
 builder.Services.AddDatabase(GetConnectionString());
+
+// Caching options - response caching happens on the client, output caching happens on the server
+// builder.Services.AddResponseCaching();
+builder.Services.AddOutputCache(x =>
+{
+    x.AddBasePolicy(c => c.Cache());
+    x.AddPolicy("MovieCache", c =>
+    {
+        c.Cache()
+            .Expire(TimeSpan.FromMinutes(1))
+            .SetVaryByQuery(["title", "year", "sortBy", "page", "pageSize"])
+            .Tag("movies");
+    });
+});
+
 builder.Services.AddControllers();
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>(DatabaseHealthCheck.Name);
 builder.Services.AddEndpointsApiExplorer();
@@ -63,6 +78,12 @@ app.MapHealthChecks("_health");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// If using CORS, make sure to use them before any type of caching
+// app.UseCors();
+// app.UseResponseCaching();
+app.UseOutputCache();
+
 app.UseMiddleware<ValidationMappingMiddleware>();
 app.MapControllers();
 
